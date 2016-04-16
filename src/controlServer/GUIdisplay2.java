@@ -28,6 +28,8 @@ public class GUIdisplay2 extends JPanel implements MyGUIAppendable2 {
 		add(scrollPane);
 	}
 
+	
+	
 	public GUIdisplay2(int width, int height) {	
 		area = new JTextArea(height +5, (width * 2)+2);
 		JScrollPane scrollPane = new JScrollPane(area);
