@@ -1,6 +1,6 @@
 CS-537 Swarm Rover Project
 
-Group
+Group 8
 
 
 
