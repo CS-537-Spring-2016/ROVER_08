@@ -55,6 +55,8 @@ public class SwarmServer {
 //  static GUIdisplay mainPanel;
 //	static MyGUIWorker myWorker;
 	
+   
+    
     static GUIdisplay2 mainPanel;
 	static MyGUIWorker2 myWorker;
     
