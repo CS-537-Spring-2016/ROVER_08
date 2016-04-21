@@ -19,7 +19,7 @@ public class RoverLocations {
 //		roverHash.put(RoverName.ROVER_05, new Coord(5,1));
 //		roverHash.put(RoverName.ROVER_06, new Coord(6,1));
 //		roverHash.put(RoverName.ROVER_07, new Coord(7,1));
-//		roverHash.put(RoverName.ROVER_08, new Coord(8,1));
+		roverHash.put(RoverName.ROVER_08, new Coord(8,1));
 //		roverHash.put(RoverName.ROVER_09, new Coord(9,1));
 //		roverHash.put(RoverName.ROVER_10, new Coord(10,1));
 //		roverHash.put(RoverName.ROVER_11, new Coord(11,1));
