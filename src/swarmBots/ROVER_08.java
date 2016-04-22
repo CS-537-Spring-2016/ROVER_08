@@ -166,7 +166,7 @@ public class ROVER_08 {
 					// (scanMap may be old data by now)
 					if (scanMapTiles[centerIndex][centerIndex +1].getHasRover() 
 							|| scanMapTiles[centerIndex +1][centerIndex].getTerrain() == Terrain.ROCK
-							|| scanMapTiles[centerIndex][centerIndex +1].getTerrain() == Terrain.SAND
+							|| scanMapTiles[centerIndex][centerIndex +1].getTerrain() == Terrain.SAND  //check if path is blocked by SAND 
 							|| scanMapTiles[centerIndex +1][centerIndex].getTerrain() == Terrain.NONE) {
 						blocked = true;
 					} else {
@@ -183,7 +183,7 @@ public class ROVER_08 {
 					
 					if (scanMapTiles[centerIndex][centerIndex -1].getHasRover() 
 							|| scanMapTiles[centerIndex -1][centerIndex].getTerrain() == Terrain.ROCK
-							|| scanMapTiles[centerIndex][centerIndex +1].getTerrain() == Terrain.SAND
+							|| scanMapTiles[centerIndex][centerIndex +1].getTerrain() == Terrain.SAND //check if path is blocked by SAND
 							|| scanMapTiles[centerIndex -1][centerIndex].getTerrain() == Terrain.NONE) {
 						blocked = true;
 					} else {
