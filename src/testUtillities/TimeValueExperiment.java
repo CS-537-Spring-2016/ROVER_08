@@ -18,6 +18,8 @@ public class TimeValueExperiment {
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			}catch (Exception e) {
+				System.out.println(e.getMessage());
 			}
 		}
 
