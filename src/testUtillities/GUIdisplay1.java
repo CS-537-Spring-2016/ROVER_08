@@ -60,6 +60,7 @@ class MyGUIWorker extends SwingWorker<Void, String> {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
 	}
 
 @Override
