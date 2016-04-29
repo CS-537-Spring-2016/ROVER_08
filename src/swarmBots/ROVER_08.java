@@ -216,7 +216,7 @@ public class ROVER_08 {
 
 						
 						if (!scanMapTiles[centerIndex][centerIndex].getScience().getSciString().equals("N")) {
-							System.out.println("ROVER_98 request GATHER");
+							System.out.println("ROVER_08 request GATHER");
 							out.println("GATHER");
 							
 						}
@@ -236,6 +236,12 @@ public class ROVER_08 {
 						// (scanMap may be old data by now)
 						//System.out.println("ROVER_08 scanMapTiles[2][1].getHasRover() " + scanMapTiles[2][1].getHasRover());
 						//System.out.println("ROVER_08 scanMapTiles[2][1].getTerrain() " + scanMapTiles[2][1].getTerrain().toString());
+						
+						if (!scanMapTiles[centerIndex][centerIndex].getScience().getSciString().equals("N")) {
+							System.out.println("ROVER_08 request GATHER");
+							out.println("GATHER");
+							
+						}
 						
 						if (scanMapTiles[centerIndex][centerIndex -1].getHasRover() 
 								|| scanMapTiles[centerIndex][centerIndex -1].getTerrain() == Terrain.ROCK
