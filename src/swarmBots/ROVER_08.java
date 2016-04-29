@@ -213,6 +213,7 @@ public class ROVER_08 {
 					if (goingSouth) {
 						// check scanMap to see if path is blocked to the south
 						// (scanMap may be old data by now)
+
 						
 						if (!scanMapTiles[centerIndex][centerIndex].getScience().getSciString().equals("N")) {
 							System.out.println("ROVER_98 request GATHER");
