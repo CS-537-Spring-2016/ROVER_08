@@ -124,6 +124,10 @@ public class ROVER_08 {
 	
 	
 			boolean goingSouth = false;
+			boolean goingEast = false;
+			boolean goingWest = false;
+			boolean goingNorth = false;
+			
 			boolean stuck = false; // just means it did not change locations between requests,
 									// could be velocity limit or obstruction etc.
 			boolean blocked = false;
@@ -231,7 +235,28 @@ public class ROVER_08 {
 							//System.out.println("ROVER_08 request move S");
 						}
 						
-					} else {
+					}else if(goingEast)
+					{
+						
+						
+						if (!scanMapTiles[centerIndex][centerIndex].getScience().getSciString().equals("N")) {
+							System.out.println("ROVER_08 request GATHER");
+							out.println("GATHER");
+							
+						}
+						
+						if (scanMapTiles[centerIndex][centerIndex +1].getHasRover() 
+								|| scanMapTiles[centerIndex][centerIndex +1].getTerrain() == Terrain.ROCK
+								|| scanMapTiles[centerIndex][centerIndex +1].getTerrain() == Terrain.NONE) {
+							blocked = true;
+						} else {
+							// request to server to move
+							out.println("MOVE E");
+							//System.out.println("ROVER_08 request move E");
+						}
+						
+						
+					}else {
 						// check scanMap to see if path is blocked to the north
 						// (scanMap may be old data by now)
 						//System.out.println("ROVER_08 scanMapTiles[2][1].getHasRover() " + scanMapTiles[2][1].getHasRover());
