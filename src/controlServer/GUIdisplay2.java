@@ -42,7 +42,7 @@ public class GUIdisplay2 extends JPanel implements MyGUIAppendable2 {
 
 	public GUIdisplay2() { }
 
-/*	public GUIdisplay2(int width, int height) {
+	public GUIdisplay2(int width, int height) {
 		this.width = width;
 		this.height = height;
 		this.pixelWidth = (this.width * TILE_SIZE);
@@ -50,16 +50,7 @@ public class GUIdisplay2 extends JPanel implements MyGUIAppendable2 {
 		graphicTiles = new ArrayList<>();
 		lineSegments = new ArrayList<>();
 		countDownClock();
-	}*/
-
-
-	
-	
-	public GUIdisplay2(int width, int height) {	
-		area = new JTextArea(height +5, (width * 2)+2);
-		JScrollPane scrollPane = new JScrollPane(area);
-		//scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		add(scrollPane);}
+	}
 
 	/**
 	 * got the idea from:
@@ -91,7 +82,6 @@ public class GUIdisplay2 extends JPanel implements MyGUIAppendable2 {
 			}
 		});
 		timer.start();
-
 	}
 
 	@Override

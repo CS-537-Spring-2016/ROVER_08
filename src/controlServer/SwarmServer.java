@@ -71,10 +71,9 @@ public class SwarmServer {
 	
     static GUIdisplay2 mainPanel2;
 	static MyGUIWorker2 myWorker2;
-
+	
 	static GUIdisplay3 mainPanel3;
 	static MyGUIWorker3 myWorker3;
-
     
 	// Length of time allowed for the rovers to get back to the retrieval zone
 	static final int MAXIMUM_ACTIVITY_TIME_LIMIT = 600000; // 10 Minutes = 600,000
@@ -95,9 +94,7 @@ public class SwarmServer {
     
  // length of a side of the scan map array !!! must be odd number !!!
     static final int STANDARD_SCANMAP_RANGE = 7;
-
     static final int BOOSTED_SCANMAP_RANGE = 11; // range extender increased to 11 by popular demand
-
     
     /**
      * The application main method, which just listens on a port and
