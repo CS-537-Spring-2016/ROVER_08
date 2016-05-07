@@ -12,6 +12,7 @@ import java.util.List;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 
 import common.Coord;
 import common.MapTile;
@@ -33,6 +34,13 @@ public class ROVER_08 {
 	int sleepTime;
 	String SERVER_ADDRESS = "localhost";
 	static final int PORT_ADDRESS = 9537;
+	
+	
+	boolean goingSouth = false;
+	boolean goingEast = false;
+	boolean goingWest = false;
+	boolean goingNorth = false;
+	boolean goingHorizontal=false;
 
 	public ROVER_08() {
 		// constructor
@@ -40,7 +48,7 @@ public class ROVER_08 {
 		rovername = "ROVER_08";
 		SERVER_ADDRESS = "localhost";
 		// this should be a safe but slow timer value
-		sleepTime = 308; // in milliseconds - smaller is faster, but the server will cut connection if it is too small
+		sleepTime = 150; // in milliseconds - smaller is faster, but the server will cut connection if it is too small
 	}
 	
 	public ROVER_08(String serverAddress) {
@@ -48,7 +56,7 @@ public class ROVER_08 {
 		System.out.println("ROVER_08 rover object constructed");
 		rovername = "ROVER_08";
 		SERVER_ADDRESS = serverAddress;
-		sleepTime = 208; // in milliseconds - smaller is faster, but the server will cut connection if it is too small
+		sleepTime = 150; // in milliseconds - smaller is faster, but the server will cut connection if it is too small
 	}
 
 	/**
@@ -123,10 +131,7 @@ public class ROVER_08 {
 			
 	
 	
-			boolean goingSouth = false;
-			boolean goingEast = false;
-			boolean goingWest = false;
-			boolean goingNorth = false;
+			
 			
 			boolean stuck = false; // just means it did not change locations between requests,
 									// could be velocity limit or obstruction etc.
@@ -199,14 +204,15 @@ public class ROVER_08 {
 				// ***** MOVING *****
 				// try moving east 5 block if blocked
 				if (blocked) {
-					for (int i = 0; i < 5; i++) {
+					directionChecker();
+					/*for (int i = 0; i < 5; i++) {
 						out.println("MOVE E");
 						//System.out.println("ROVER_08 request move E");
-						Thread.sleep(308);
-					}
+						Thread.sleep(150);
+					}*/
 					blocked = false;
 					//reverses direction after being blocked
-					goingSouth = !goingSouth;
+					//goingSouth = !goingSouth;
 				} else {
 	
 					// pull the MapTile array out of the ScanMap object
@@ -217,7 +223,7 @@ public class ROVER_08 {
 					if (goingSouth) {
 						// check scanMap to see if path is blocked to the south
 						// (scanMap may be old data by now)
-
+						goingHorizontal=Boolean.FALSE;
 						
 						if (!scanMapTiles[centerIndex][centerIndex].getScience().getSciString().equals("N")) {
 							System.out.println("ROVER_08 request GATHER");
@@ -237,7 +243,7 @@ public class ROVER_08 {
 						
 					}else if(goingEast)
 					{
-						
+						goingHorizontal=Boolean.TRUE;
 						
 						if (!scanMapTiles[centerIndex][centerIndex].getScience().getSciString().equals("N")) {
 							System.out.println("ROVER_08 request GATHER");
@@ -245,9 +251,9 @@ public class ROVER_08 {
 							
 						}
 						
-						if (scanMapTiles[centerIndex][centerIndex +1].getHasRover() 
-								|| scanMapTiles[centerIndex][centerIndex +1].getTerrain() == Terrain.ROCK
-								|| scanMapTiles[centerIndex][centerIndex +1].getTerrain() == Terrain.NONE) {
+						if (scanMapTiles[centerIndex+1][centerIndex].getHasRover() 
+								|| scanMapTiles[centerIndex+1][centerIndex].getTerrain() == Terrain.ROCK
+								|| scanMapTiles[centerIndex+1][centerIndex].getTerrain() == Terrain.NONE) {
 							blocked = true;
 						} else {
 							// request to server to move
@@ -256,12 +262,35 @@ public class ROVER_08 {
 						}
 						
 						
-					}else {
+					}else if(goingWest)
+					{
+						goingHorizontal=Boolean.TRUE;
+						
+						if (!scanMapTiles[centerIndex][centerIndex].getScience().getSciString().equals("N")) {
+							System.out.println("ROVER_08 request GATHER");
+							out.println("GATHER");
+							
+						}
+						
+						if (scanMapTiles[centerIndex-1][centerIndex].getHasRover() 
+								|| scanMapTiles[centerIndex-1][centerIndex].getTerrain() == Terrain.ROCK
+								|| scanMapTiles[centerIndex-1][centerIndex].getTerrain() == Terrain.NONE) {
+							blocked = true;
+						} else {
+							// request to server to move
+							out.println("MOVE W");
+							//System.out.println("ROVER_08 request move E");
+						}
+						
+						
+					}
+					
+					else {
 						// check scanMap to see if path is blocked to the north
 						// (scanMap may be old data by now)
 						//System.out.println("ROVER_08 scanMapTiles[2][1].getHasRover() " + scanMapTiles[2][1].getHasRover());
 						//System.out.println("ROVER_08 scanMapTiles[2][1].getTerrain() " + scanMapTiles[2][1].getTerrain().toString());
-						
+						goingHorizontal=Boolean.FALSE;
 						if (!scanMapTiles[centerIndex][centerIndex].getScience().getSciString().equals("N")) {
 							System.out.println("ROVER_08 request GATHER");
 							out.println("GATHER");
@@ -431,6 +460,44 @@ public class ROVER_08 {
 			return new Coord(Integer.parseInt(xStr), Integer.parseInt(yStr));
 		}
 		return null;
+	}
+	
+	public void directionChecker() 
+	{
+		
+		MapTile[][] tiles = scanMap.getScanMap();
+		int centerIndex = (scanMap.getEdgeSize() - 1)/2;
+		int x,y;
+		x=centerIndex;y=centerIndex;
+
+		if(goingHorizontal)
+		{
+			if(tiles[x][y+1].getTerrain() != Terrain.ROCK && tiles[x][y+1].getTerrain() != Terrain.NONE && tiles[x][y+1].getHasRover()== Boolean.FALSE )
+			{
+				goingSouth=Boolean.TRUE;goingNorth=Boolean.FALSE;goingEast=Boolean.FALSE;goingWest=Boolean.FALSE;
+			}else if(tiles[x][y-1].getTerrain() != Terrain.ROCK && tiles[x][y-1].getTerrain() != Terrain.NONE && tiles[x][y-1].getHasRover()== Boolean.FALSE )
+			{
+				goingSouth=Boolean.FALSE;goingNorth=Boolean.FALSE;goingEast=Boolean.FALSE;goingWest=Boolean.TRUE;
+			}
+		}
+		else
+		{
+			if(tiles[x+1][y].getTerrain() != Terrain.ROCK && tiles[x+1][y].getTerrain() != Terrain.NONE && tiles[x+1][y].getHasRover()== Boolean.FALSE )
+			{
+				goingSouth=Boolean.FALSE;goingNorth=Boolean.FALSE;goingEast=Boolean.TRUE;goingWest=Boolean.FALSE;
+			}else  if(tiles[x-1][y].getTerrain() != Terrain.ROCK && tiles[x-1][y].getTerrain() != Terrain.NONE && tiles[x-1][y].getHasRover()== Boolean.FALSE )
+			{
+				goingSouth=Boolean.FALSE;goingNorth=Boolean.TRUE;goingEast=Boolean.FALSE;goingWest=Boolean.FALSE;
+			}
+
+		}
+		 
+		
+				
+			
+		
+		
+			
 	}
 	
 
