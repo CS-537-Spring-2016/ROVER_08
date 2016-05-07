@@ -12,7 +12,7 @@ import java.util.List;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.sun.org.apache.xpath.internal.operations.Bool;
+//import com.sun.org.apache.xpath.internal.operations.Bool;
 
 import common.Coord;
 import common.MapTile;
@@ -475,9 +475,17 @@ public class ROVER_08 {
 			if(tiles[x][y+1].getTerrain() != Terrain.ROCK && tiles[x][y+1].getTerrain() != Terrain.NONE && tiles[x][y+1].getHasRover()== Boolean.FALSE )
 			{
 				goingSouth=Boolean.TRUE;goingNorth=Boolean.FALSE;goingEast=Boolean.FALSE;goingWest=Boolean.FALSE;
-			}else if(tiles[x][y-1].getTerrain() != Terrain.ROCK && tiles[x][y-1].getTerrain() != Terrain.NONE && tiles[x][y-1].getHasRover()== Boolean.FALSE )
+			}else if(tiles[x+1][y].getTerrain() != Terrain.ROCK && tiles[x+1][y].getTerrain() != Terrain.NONE && tiles[x+1][y].getHasRover()== Boolean.FALSE )
+			{
+				goingSouth=Boolean.FALSE;goingNorth=Boolean.FALSE;goingEast=Boolean.TRUE;goingWest=Boolean.FALSE;
+			}
+			else if(tiles[x][y-1].getTerrain() != Terrain.ROCK && tiles[x][y-1].getTerrain() != Terrain.NONE && tiles[x][y-1].getHasRover()== Boolean.FALSE )
 			{
 				goingSouth=Boolean.FALSE;goingNorth=Boolean.FALSE;goingEast=Boolean.FALSE;goingWest=Boolean.TRUE;
+			}
+			else 
+			{
+				goingSouth=Boolean.FALSE;goingNorth=Boolean.TRUE;goingEast=Boolean.FALSE;goingWest=Boolean.FALSE;
 			}
 		}
 		else
@@ -485,7 +493,15 @@ public class ROVER_08 {
 			if(tiles[x+1][y].getTerrain() != Terrain.ROCK && tiles[x+1][y].getTerrain() != Terrain.NONE && tiles[x+1][y].getHasRover()== Boolean.FALSE )
 			{
 				goingSouth=Boolean.FALSE;goingNorth=Boolean.FALSE;goingEast=Boolean.TRUE;goingWest=Boolean.FALSE;
-			}else  if(tiles[x-1][y].getTerrain() != Terrain.ROCK && tiles[x-1][y].getTerrain() != Terrain.NONE && tiles[x-1][y].getHasRover()== Boolean.FALSE )
+			}else if(tiles[x][y+1].getTerrain() != Terrain.ROCK && tiles[x][y+1].getTerrain() != Terrain.NONE && tiles[x][y+1].getHasRover()== Boolean.FALSE )
+			{
+				goingSouth=Boolean.TRUE;goingNorth=Boolean.FALSE;goingEast=Boolean.FALSE;goingWest=Boolean.FALSE;
+			}
+			else if(tiles[x][y-1].getTerrain() != Terrain.ROCK && tiles[x][y-1].getTerrain() != Terrain.NONE && tiles[x][y-1].getHasRover()== Boolean.FALSE )
+			{
+				goingSouth=Boolean.FALSE;goingNorth=Boolean.FALSE;goingEast=Boolean.FALSE;goingWest=Boolean.TRUE;
+			}
+			else  if(tiles[x-1][y].getTerrain() != Terrain.ROCK && tiles[x-1][y].getTerrain() != Terrain.NONE && tiles[x-1][y].getHasRover()== Boolean.FALSE )
 			{
 				goingSouth=Boolean.FALSE;goingNorth=Boolean.TRUE;goingEast=Boolean.FALSE;goingWest=Boolean.FALSE;
 			}
