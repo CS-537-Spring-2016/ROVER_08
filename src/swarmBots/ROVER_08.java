@@ -462,7 +462,16 @@ public class ROVER_08 {
 		return null;
 	}
 	
-	public void directionChecker() 
+	public Boolean validateMapTile(MapTile map)
+	{
+		if(map.getTerrain() != Terrain.ROCK && map.getTerrain() != Terrain.NONE && map.getHasRover()== Boolean.FALSE )
+			return Boolean.TRUE;
+		
+		return Boolean.FALSE;
+				
+	}
+	
+		public void directionChecker() 
 	{
 		
 		MapTile[][] tiles = scanMap.getScanMap();
@@ -472,14 +481,14 @@ public class ROVER_08 {
 
 		if(goingHorizontal)
 		{
-			if(tiles[x][y+1].getTerrain() != Terrain.ROCK && tiles[x][y+1].getTerrain() != Terrain.NONE && tiles[x][y+1].getHasRover()== Boolean.FALSE )
+			if(validateMapTile( tiles[x][y+1]))
 			{
 				goingSouth=Boolean.TRUE;goingNorth=Boolean.FALSE;goingEast=Boolean.FALSE;goingWest=Boolean.FALSE;
-			}else if(tiles[x+1][y].getTerrain() != Terrain.ROCK && tiles[x+1][y].getTerrain() != Terrain.NONE && tiles[x+1][y].getHasRover()== Boolean.FALSE )
-			{
+			}else if(validateMapTile( tiles[x+1][y]) )
+			{ 
 				goingSouth=Boolean.FALSE;goingNorth=Boolean.FALSE;goingEast=Boolean.TRUE;goingWest=Boolean.FALSE;
 			}
-			else if(tiles[x][y-1].getTerrain() != Terrain.ROCK && tiles[x][y-1].getTerrain() != Terrain.NONE && tiles[x][y-1].getHasRover()== Boolean.FALSE )
+			else if(validateMapTile( tiles[x][y-1])  )
 			{
 				goingSouth=Boolean.FALSE;goingNorth=Boolean.FALSE;goingEast=Boolean.FALSE;goingWest=Boolean.TRUE;
 			}
@@ -490,30 +499,24 @@ public class ROVER_08 {
 		}
 		else
 		{
-			if(tiles[x+1][y].getTerrain() != Terrain.ROCK && tiles[x+1][y].getTerrain() != Terrain.NONE && tiles[x+1][y].getHasRover()== Boolean.FALSE )
+			if(validateMapTile( tiles[x+1][y]))
 			{
 				goingSouth=Boolean.FALSE;goingNorth=Boolean.FALSE;goingEast=Boolean.TRUE;goingWest=Boolean.FALSE;
-			}else if(tiles[x][y+1].getTerrain() != Terrain.ROCK && tiles[x][y+1].getTerrain() != Terrain.NONE && tiles[x][y+1].getHasRover()== Boolean.FALSE )
+			}else if(validateMapTile( tiles[x][y+1])  )
 			{
 				goingSouth=Boolean.TRUE;goingNorth=Boolean.FALSE;goingEast=Boolean.FALSE;goingWest=Boolean.FALSE;
 			}
-			else if(tiles[x][y-1].getTerrain() != Terrain.ROCK && tiles[x][y-1].getTerrain() != Terrain.NONE && tiles[x][y-1].getHasRover()== Boolean.FALSE )
+			else if(validateMapTile( tiles[x][y-1]) )
 			{
 				goingSouth=Boolean.FALSE;goingNorth=Boolean.FALSE;goingEast=Boolean.FALSE;goingWest=Boolean.TRUE;
 			}
-			else  if(tiles[x-1][y].getTerrain() != Terrain.ROCK && tiles[x-1][y].getTerrain() != Terrain.NONE && tiles[x-1][y].getHasRover()== Boolean.FALSE )
+			else 
 			{
 				goingSouth=Boolean.FALSE;goingNorth=Boolean.TRUE;goingEast=Boolean.FALSE;goingWest=Boolean.FALSE;
 			}
 
 		}
 		 
-		
-				
-			
-		
-		
-			
 	}
 	
 
