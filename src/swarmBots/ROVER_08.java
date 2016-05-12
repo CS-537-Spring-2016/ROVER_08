@@ -214,7 +214,7 @@ public class ROVER_08 {
 					//reverses direction after being blocked
 					//goingSouth = !goingSouth;
 				} else {
-	
+					getTargetDirection(currentLoc);
 					// pull the MapTile array out of the ScanMap object
 					MapTile[][] scanMapTiles = scanMap.getScanMap();
 					int centerIndex = (scanMap.getEdgeSize() - 1)/2;
@@ -472,54 +472,184 @@ public class ROVER_08 {
 	}
 	
 		public void directionChecker() 
-	{
+		{
 		
 		MapTile[][] tiles = scanMap.getScanMap();
-		int centerIndex = (scanMap.getEdgeSize() - 1)/2;
-		int x,y;
-		x=centerIndex;y=centerIndex;
-
-		if(goingHorizontal)
-		{
-			if(validateMapTile( tiles[x][y+1]))
-			{
-				goingSouth=Boolean.TRUE;goingNorth=Boolean.FALSE;goingEast=Boolean.FALSE;goingWest=Boolean.FALSE;
-			}else if(validateMapTile( tiles[x+1][y]) )
-			{ 
-				goingSouth=Boolean.FALSE;goingNorth=Boolean.FALSE;goingEast=Boolean.TRUE;goingWest=Boolean.FALSE;
+		int x = (scanMap.getEdgeSize() - 1)/2;
+			if(!checkSouthDirection(tiles, x,x)) {
+				if(!checkEastDirection(tiles, x, x)){
+					if(!checkNorthDirection(tiles, x, x)){
+						goingSouth=Boolean.FALSE;goingNorth=Boolean.FALSE;goingEast=Boolean.FALSE;goingWest=Boolean.TRUE;
+					}
+				}
 			}
-			else if(validateMapTile( tiles[x][y-1])  )
-			{
-				goingSouth=Boolean.FALSE;goingNorth=Boolean.FALSE;goingEast=Boolean.FALSE;goingWest=Boolean.TRUE;
-			}
-			else 
-			{
-				goingSouth=Boolean.FALSE;goingNorth=Boolean.TRUE;goingEast=Boolean.FALSE;goingWest=Boolean.FALSE;
-			}
+		
 		}
-		else
-		{
-			if(validateMapTile( tiles[x+1][y]))
-			{
-				goingSouth=Boolean.FALSE;goingNorth=Boolean.FALSE;goingEast=Boolean.TRUE;goingWest=Boolean.FALSE;
-			}else if(validateMapTile( tiles[x][y+1])  )
-			{
-				goingSouth=Boolean.TRUE;goingNorth=Boolean.FALSE;goingEast=Boolean.FALSE;goingWest=Boolean.FALSE;
-			}
-			else if(validateMapTile( tiles[x][y-1]) )
-			{
-				goingSouth=Boolean.FALSE;goingNorth=Boolean.FALSE;goingEast=Boolean.FALSE;goingWest=Boolean.TRUE;
-			}
-			else 
-			{
-				goingSouth=Boolean.FALSE;goingNorth=Boolean.TRUE;goingEast=Boolean.FALSE;goingWest=Boolean.FALSE;
-			}
 
-		}
-		 
-	}
+		public void getTargetDirection(Coord currentLoc) throws Exception
+		{
+			
+			Coord targetLoc=null;
+			out.println("TARGET_LOC");
+			String line = in.readLine();
+            if (line == null) {
+            	line = "";
+            }
+            else if (line.startsWith("TARGET_LOC")) {
+				targetLoc = extractLocationFromString(line);
+			}
+            
+        	MapTile[][] map = scanMap.getScanMap();
+    		int x = (scanMap.getEdgeSize() - 1)/2;
+         // S = y + 1; N = y - 1; E = x + 1; W = x - 1
+          if(currentLoc.xpos==targetLoc.xpos && currentLoc.ypos==targetLoc.ypos)
+          {
+        	  directionChecker();
+          }
+          else if((currentLoc.xpos<targetLoc.xpos && currentLoc.ypos<targetLoc.ypos) )
+          {
+        	  if(goingHorizontal)
+        	  {
+        		  if(!checkSouthDirection(map, x, x)){
+        			  if(!checkNorthDirection(map, x, x)){
+        				  if(!checkEastDirection(map, x, x)){
+        					  goingSouth=Boolean.FALSE;goingNorth=Boolean.FALSE;goingEast=Boolean.FALSE;goingWest=Boolean.TRUE;
+        				  }
+        			  }
+        		  }
+        	  }else
+        	  {
+        		  if(!checkEastDirection(map, x, x)){
+    				  if(!checkWestDirection(map, x, x)){
+    					  if(!checkSouthDirection(map, x, x)){
+    						  goingSouth=Boolean.FALSE;goingNorth=Boolean.TRUE;goingEast=Boolean.FALSE;goingWest=Boolean.FALSE;
+    					  }
+    				  }
+        		  }
+        	  }
+        	  
+          }
+          else if(currentLoc.xpos==targetLoc.xpos )
+          {
+        	  
+        	  
+        	  if(currentLoc.ypos<targetLoc.ypos)
+        	  {
+        		  if(!checkSouthDirection(map, x, x)){
+        		    if(!checkEastDirection(map, x, x)){
+        				  if(!checkWestDirection(map, x, x)){
+        					  goingSouth=Boolean.FALSE;goingNorth=Boolean.TRUE;goingEast=Boolean.FALSE;goingWest=Boolean.FALSE;
+        				  }
+        		    }
+        		  }
+        	  }
+        	  else
+        	  {
+        		  if(!checkNorthDirection(map, x, x)){
+    			    if(!checkEastDirection(map, x, x)){
+        				  if(!checkSouthDirection(map, x, x)){
+	    					  goingSouth=Boolean.FALSE;goingNorth=Boolean.FALSE;goingEast=Boolean.FALSE;goingWest=Boolean.TRUE;
+        				  }
+    			    }
+        		  }
+        	  }
+          }
+          else if(currentLoc.ypos==targetLoc.ypos)
+          {
+        	  if(currentLoc.xpos<targetLoc.ypos)
+        	  {
+        		  if(!checkEastDirection(map, x, x)){
+        			  if(!checkSouthDirection(map, x, x)){
+        				  if(checkWestDirection(map, x, x)){
+        						goingSouth=Boolean.FALSE;goingNorth=Boolean.TRUE;goingEast=Boolean.FALSE;goingWest=Boolean.FALSE;
+        				  }
+        			  }
+        		  }
+        	  }
+        	  else
+        	  {
+        		  if(!checkWestDirection(map, x, x)){
+        			  if(!checkSouthDirection(map, x, x)){
+        				  if(checkEastDirection(map, x, x)){
+    						goingSouth=Boolean.FALSE;goingNorth=Boolean.TRUE;goingEast=Boolean.FALSE;goingWest=Boolean.FALSE;
+        				  }
+        			  }
+        		  }
+        	  }
+        	  
+        	  
+          }
+          else if(currentLoc.xpos>targetLoc.xpos)
+          {
+        	  if(!checkWestDirection(map, x, x)){
+    			  if(!checkSouthDirection(map, x, x)){
+    				  if(checkEastDirection(map, x, x)){
+						goingSouth=Boolean.FALSE;goingNorth=Boolean.TRUE;goingEast=Boolean.FALSE;goingWest=Boolean.FALSE;
+    				  }
+    			  }
+    		  }
+        	  
+        	  
+          }
+          else{
+        	  if(!checkEastDirection(map, x, x)){
+    			  if(!checkSouthDirection(map, x, x)){
+    				  if(checkWestDirection(map, x, x)){
+    						goingSouth=Boolean.FALSE;goingNorth=Boolean.TRUE;goingEast=Boolean.FALSE;goingWest=Boolean.FALSE;
+    				  }
+    			  }
+    		  }
+          }
+            
+		} 
 	
 
+		//checks for obstacle in North Direction
+		Boolean checkNorthDirection(MapTile[][] map, int x, int y)
+		{
+			if(validateMapTile( map[x][y-1])  ) //North
+			{
+				goingSouth=Boolean.FALSE;goingNorth=Boolean.TRUE;goingEast=Boolean.FALSE;goingWest=Boolean.FALSE;
+				 return	Boolean.TRUE;
+			}
+		 	return	Boolean.FALSE;
+		}
+		
+		//checks for obstacle in East Direction
+		Boolean checkEastDirection(MapTile[][] map, int x, int y)
+		{
+			if(validateMapTile( map[x+1][y]) )  //East
+			{ 
+				goingSouth=Boolean.FALSE;goingNorth=Boolean.FALSE;goingEast=Boolean.TRUE;goingWest=Boolean.FALSE;
+				 return	Boolean.TRUE;
+			}
+			return	Boolean.FALSE;
+		}
+		
+		//checks for obstacle in South Direction
+		Boolean checkSouthDirection(MapTile[][] map, int x, int y)
+		{
+			if(validateMapTile( map[x][y+1])) //South
+			{
+				goingSouth=Boolean.TRUE;goingNorth=Boolean.FALSE;goingEast=Boolean.FALSE;goingWest=Boolean.FALSE;
+				 return	Boolean.TRUE;
+			}
+			return	Boolean.FALSE;
+		}
+		
+		//checks for obstacle in West Direction
+		Boolean checkWestDirection(MapTile[][] map, int x, int y)
+		{
+			if(validateMapTile( map[x-1][y])) 	 //West
+			{
+				goingSouth=Boolean.FALSE;goingNorth=Boolean.FALSE;goingEast=Boolean.FALSE;goingWest=Boolean.TRUE;
+				return	Boolean.TRUE;
+			}
+			return	Boolean.FALSE;
+		}
+	
+
+		
 	/**
 	 * Runs the client
 	 */
