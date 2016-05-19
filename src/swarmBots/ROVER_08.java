@@ -463,6 +463,59 @@ public class ROVER_08 {
 		return null;
 	}
 	
+	
+	// checks for obstacle in North Direction
+	Boolean checkNorthDirection(MapTile[][] map, int x, int y) {
+		if (validateMapTile(map[x][y - 1])) // North
+		{
+			goingSouth = Boolean.FALSE;
+			goingNorth = Boolean.TRUE;
+			goingEast = Boolean.FALSE;
+			goingWest = Boolean.FALSE;
+			return Boolean.TRUE;
+		}
+		return Boolean.FALSE;
+	}
+
+	// checks for obstacle in East Direction
+	Boolean checkEastDirection(MapTile[][] map, int x, int y) {
+		if (validateMapTile(map[x + 1][y])) // East
+		{
+			goingSouth = Boolean.FALSE;
+			goingNorth = Boolean.FALSE;
+			goingEast = Boolean.TRUE;
+			goingWest = Boolean.FALSE;
+			return Boolean.TRUE;
+		}
+		return Boolean.FALSE;
+	}
+
+	// checks for obstacle in South Direction
+	Boolean checkSouthDirection(MapTile[][] map, int x, int y) {
+		if (validateMapTile(map[x][y + 1])) // South
+		{
+			goingSouth = Boolean.TRUE;
+			goingNorth = Boolean.FALSE;
+			goingEast = Boolean.FALSE;
+			goingWest = Boolean.FALSE;
+			return Boolean.TRUE;
+		}
+		return Boolean.FALSE;
+	}
+
+	// checks for obstacle in West Direction
+	Boolean checkWestDirection(MapTile[][] map, int x, int y) {
+		if (validateMapTile(map[x - 1][y])) // West
+		{
+			goingSouth = Boolean.FALSE;
+			goingNorth = Boolean.FALSE;
+			goingEast = Boolean.FALSE;
+			goingWest = Boolean.TRUE;
+			return Boolean.TRUE;
+		}
+		return Boolean.FALSE;
+	}
+	
 
 	/**
 	 * Runs the client
