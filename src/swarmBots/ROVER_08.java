@@ -38,6 +38,13 @@ public class ROVER_08 {
 	String SERVER_ADDRESS = "localhost";
 	static final int PORT_ADDRESS = 9537;
 	
+	
+	boolean goingSouth = false;
+	boolean goingEast = false;
+	boolean goingWest = false;
+	boolean goingNorth = false;
+	boolean goingHorizontal = false;
+	
 	/* Communication Module*/
     RoverCommunication rocom;
 
@@ -146,14 +153,6 @@ public class ROVER_08 {
 			
 			
 
-			
-	
-	
-			boolean goingSouth = false;
-			boolean goingEast = false;
-			boolean goingWest = false;
-			boolean goingNorth = false;
-			
 			boolean stuck = false; // just means it did not change locations between requests,
 									// could be velocity limit or obstruction etc.
 			boolean blocked = false;
@@ -463,7 +462,26 @@ public class ROVER_08 {
 		return null;
 	}
 	
-	
+	public void directionChecker() {
+
+		int i=(int) Math.random()% 4;
+		if(i==0)
+		{
+			goingSouth=Boolean.TRUE;goingEast=Boolean.FALSE;goingWest=Boolean.FALSE;goingNorth=Boolean.FALSE;
+		}
+		else if(i ==1)
+		{
+			goingSouth=Boolean.FALSE;goingEast=Boolean.FALSE;goingWest=Boolean.FALSE;goingNorth=Boolean.TRUE;
+		}
+		else if(i==2)
+		{
+			goingSouth=Boolean.FALSE;goingEast=Boolean.FALSE;goingWest=Boolean.TRUE;goingNorth=Boolean.FALSE;
+		}else
+		{
+			goingSouth=Boolean.FALSE;goingEast=Boolean.TRUE;goingWest=Boolean.FALSE;goingNorth=Boolean.FALSE;
+		}
+
+	}
 	// checks for obstacle in North Direction
 	Boolean checkNorthDirection(MapTile[][] map, int x, int y) {
 		if (validateMapTile(map[x][y - 1])) // North
