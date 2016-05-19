@@ -461,6 +461,15 @@ public class ROVER_08 {
 		}
 		return null;
 	}
+	public Boolean validateMapTile(MapTile map) {
+		if (map.getTerrain() != Terrain.ROCK
+				&& map.getTerrain() != Terrain.NONE
+				&& map.getHasRover() == Boolean.FALSE)
+			return Boolean.TRUE;
+
+		return Boolean.FALSE;
+
+	}
 	
 	public void directionChecker() {
 
