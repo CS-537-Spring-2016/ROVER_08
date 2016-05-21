@@ -45,6 +45,8 @@ public class ROVER_08 {
 	boolean goingNorth = false;
 	boolean goingHorizontal = false;
 	
+	Coord targetLocation = null;
+	
 	/* Communication Module*/
     RoverCommunication rocom;
 
@@ -54,7 +56,7 @@ public class ROVER_08 {
 		rovername = "ROVER_08";
 		SERVER_ADDRESS = "localhost";
 		// this should be a safe but slow timer value
-		sleepTime = 308; // in milliseconds - smaller is faster, but the server will cut connection if it is too small
+		sleepTime = 150; // in milliseconds - smaller is faster, but the server will cut connection if it is too small
 	}
 	
 	public ROVER_08(String serverAddress) {
@@ -62,7 +64,7 @@ public class ROVER_08 {
 		System.out.println("ROVER_08 rover object constructed");
 		rovername = "ROVER_08";
 		SERVER_ADDRESS = serverAddress;
-		sleepTime = 208; // in milliseconds - smaller is faster, but the server will cut connection if it is too small
+		sleepTime = 150; // in milliseconds - smaller is faster, but the server will cut connection if it is too small
 	}
 
 	/**
@@ -115,7 +117,7 @@ public class ROVER_08 {
 			
 			String line = "";
 			Coord rovergroupStartPosition = null;
-			Coord targetLocation = null;
+			
 			
 			/**
 			 *  Get initial values that won't change
@@ -224,25 +226,25 @@ public class ROVER_08 {
 				// ***** MOVING *****
 				// try moving east 5 block if blocked
 				if (blocked) {
-					for (int i = 0; i < 5; i++) {
-						out.println("MOVE E");
+//					for (int i = 0; i < 5; i++) {
+						//out.println("MOVE E");
 						//System.out.println("ROVER_08 request move E");
-						Thread.sleep(308);
-					}
+						directionChecker();
+//						Thread.sleep(308);
+//					}
 					blocked = false;
 					//reverses direction after being blocked
-					goingSouth = !goingSouth;
+				//	goingSouth = !goingSouth;
 				} else {
-	
+					getTargetDirection(currentLoc);
 					// pull the MapTile array out of the ScanMap object
 					MapTile[][] scanMapTiles = scanMap.getScanMap();
 					int centerIndex = (scanMap.getEdgeSize() - 1)/2;
 					// tile S = y + 1; N = y - 1; E = x + 1; W = x - 1
 	
 					if (goingSouth) {
-						// check scanMap to see if path is blocked to the south
-						// (scanMap may be old data by now)
-
+						
+						goingHorizontal = Boolean.FALSE;
 						
 						if (!scanMapTiles[centerIndex][centerIndex].getScience().getSciString().equals("N")) {
 							System.out.println("ROVER_08 request GATHER");
@@ -250,9 +252,7 @@ public class ROVER_08 {
 							
 						}
 						
-						if (scanMapTiles[centerIndex][centerIndex +1].getHasRover() 
-								|| scanMapTiles[centerIndex][centerIndex +1].getTerrain() == Terrain.ROCK
-								|| scanMapTiles[centerIndex][centerIndex +1].getTerrain() == Terrain.NONE) {
+						if (!checkSouthDirection(scanMapTiles, centerIndex, centerIndex)) {
 							blocked = true;
 						} else {
 							// request to server to move
@@ -262,7 +262,7 @@ public class ROVER_08 {
 						
 					}else if(goingEast)
 					{
-						
+						goingHorizontal = Boolean.TRUE;
 						
 						if (!scanMapTiles[centerIndex][centerIndex].getScience().getSciString().equals("N")) {
 							System.out.println("ROVER_08 request GATHER");
@@ -270,9 +270,7 @@ public class ROVER_08 {
 							
 						}
 						
-						if (scanMapTiles[centerIndex][centerIndex +1].getHasRover() 
-								|| scanMapTiles[centerIndex][centerIndex +1].getTerrain() == Terrain.ROCK
-								|| scanMapTiles[centerIndex][centerIndex +1].getTerrain() == Terrain.NONE) {
+						if (!checkEastDirection(scanMapTiles, centerIndex, centerIndex)) {
 							blocked = true;
 						} else {
 							// request to server to move
@@ -281,21 +279,37 @@ public class ROVER_08 {
 						}
 						
 						
+					}else if (goingWest) {
+						goingHorizontal = Boolean.TRUE;
+
+						if (!scanMapTiles[centerIndex][centerIndex]
+								.getScience().getSciString().equals("N")) {
+							System.out.println("ROVER_08 request GATHER");
+							out.println("GATHER");
+
+						}
+
+						if (!checkWestDirection(scanMapTiles, centerIndex, centerIndex)) {
+							blocked = true;
+						} else {
+							// request to server to move
+							out.println("MOVE W");
+							// System.out.println("ROVER_08 request move E");
+						}
+
 					}else {
 						// check scanMap to see if path is blocked to the north
 						// (scanMap may be old data by now)
 						//System.out.println("ROVER_08 scanMapTiles[2][1].getHasRover() " + scanMapTiles[2][1].getHasRover());
 						//System.out.println("ROVER_08 scanMapTiles[2][1].getTerrain() " + scanMapTiles[2][1].getTerrain().toString());
-						
+						goingHorizontal = Boolean.FALSE;
 						if (!scanMapTiles[centerIndex][centerIndex].getScience().getSciString().equals("N")) {
 							System.out.println("ROVER_08 request GATHER");
 							out.println("GATHER");
 							
 						}
 						
-						if (scanMapTiles[centerIndex][centerIndex -1].getHasRover() 
-								|| scanMapTiles[centerIndex][centerIndex -1].getTerrain() == Terrain.ROCK
-								|| scanMapTiles[centerIndex][centerIndex -1].getTerrain() == Terrain.NONE) {
+						if (!checkNorthDirection(scanMapTiles,centerIndex,centerIndex)) {
 							blocked = true;
 						} else {
 							// request to server to move
@@ -461,6 +475,7 @@ public class ROVER_08 {
 		}
 		return null;
 	}
+	
 	public Boolean validateMapTile(MapTile map) {
 		if (map.getTerrain() != Terrain.ROCK
 				&& map.getTerrain() != Terrain.NONE
@@ -477,6 +492,7 @@ public class ROVER_08 {
 		if(i==0)
 		{
 			goingSouth=Boolean.TRUE;goingEast=Boolean.FALSE;goingWest=Boolean.FALSE;goingNorth=Boolean.FALSE;
+			
 		}
 		else if(i ==1)
 		{
@@ -488,6 +504,95 @@ public class ROVER_08 {
 		}else
 		{
 			goingSouth=Boolean.FALSE;goingEast=Boolean.TRUE;goingWest=Boolean.FALSE;goingNorth=Boolean.FALSE;
+		}
+
+	}
+	
+	
+	
+	public void getTargetDirection(Coord currentLoc) throws Exception {
+
+	
+		MapTile[][] map = scanMap.getScanMap();
+		int x = (scanMap.getEdgeSize() - 1) / 2;
+		// S = y + 1; N = y - 1; E = x + 1; W = x - 1
+		if (currentLoc.xpos == targetLocation.xpos
+				&& currentLoc.ypos == targetLocation.ypos) {
+			directionChecker();
+		} else if ((currentLoc.xpos < targetLocation.xpos && currentLoc.ypos < targetLocation.ypos)) {
+			if (goingHorizontal) {
+				if (!checkSouthDirection(map, x, x)) {
+					if (!checkNorthDirection(map, x, x)) {
+						if (!checkEastDirection(map, x, x)) {
+							goingSouth = Boolean.FALSE;goingNorth = Boolean.FALSE;goingEast = Boolean.FALSE;goingWest = Boolean.TRUE;
+						}
+					}
+				}
+			} else {
+				if (!checkEastDirection(map, x, x)) {
+					if (!checkWestDirection(map, x, x)) {
+						if (!checkSouthDirection(map, x, x)) {
+							goingSouth = Boolean.FALSE;goingNorth = Boolean.TRUE;goingEast = Boolean.FALSE;goingWest = Boolean.FALSE;
+						}
+					}
+				}
+			}
+
+		} else if (currentLoc.xpos == targetLocation.xpos) {
+
+			if (currentLoc.ypos < targetLocation.ypos) {
+				if (!checkSouthDirection(map, x, x)) {
+					if (!checkEastDirection(map, x, x)) {
+						if (!checkWestDirection(map, x, x)) {
+							goingSouth = Boolean.FALSE;goingNorth = Boolean.TRUE;goingEast = Boolean.FALSE;goingWest = Boolean.FALSE;
+						}
+					}
+				}
+			} else {
+				if (!checkNorthDirection(map, x, x)) {
+					if (!checkEastDirection(map, x, x)) {
+						if (!checkSouthDirection(map, x, x)) {
+							goingSouth = Boolean.FALSE;goingNorth = Boolean.FALSE;goingEast = Boolean.FALSE;goingWest = Boolean.TRUE;
+						}
+					}
+				}
+			}
+		} else if (currentLoc.ypos == targetLocation.ypos) {
+			if (currentLoc.xpos < targetLocation.ypos) {
+				if (!checkEastDirection(map, x, x)) {
+					if (!checkSouthDirection(map, x, x)) {
+						if (checkWestDirection(map, x, x)) {
+							goingSouth = Boolean.FALSE;goingNorth = Boolean.TRUE;goingEast = Boolean.FALSE;goingWest = Boolean.FALSE;
+						}
+					}
+				}
+			} else {
+				if (!checkWestDirection(map, x, x)) {
+					if (!checkSouthDirection(map, x, x)) {
+						if (checkEastDirection(map, x, x)) {
+							goingSouth = Boolean.FALSE;goingNorth = Boolean.TRUE;goingEast = Boolean.FALSE;goingWest = Boolean.FALSE;
+						}
+					}
+				}
+			}
+
+		} else if (currentLoc.xpos > targetLocation.xpos) {
+			if (!checkWestDirection(map, x, x)) {
+				if (!checkSouthDirection(map, x, x)) {
+					if (checkEastDirection(map, x, x)) {
+						goingSouth = Boolean.FALSE;goingNorth = Boolean.TRUE;goingEast = Boolean.FALSE;goingWest = Boolean.FALSE;
+					}
+				}
+			}
+
+		} else {
+			if (!checkEastDirection(map, x, x)) {
+				if (!checkSouthDirection(map, x, x)) {
+					if (checkWestDirection(map, x, x)) {
+						goingSouth = Boolean.FALSE;goingNorth = Boolean.TRUE;goingEast = Boolean.FALSE;goingWest = Boolean.FALSE;
+					}
+				}
+			}
 		}
 
 	}
