@@ -10,6 +10,8 @@ public class Coord {
 	// thanks to this posting http://stackoverflow.com/questions/27581/what-issues-should-be-considered-when-overriding-equals-and-hashcode-in-java
 	
 	public final int xpos;
+	
+
 	public final int ypos;
     public Terrain terrain;
     public boolean hasRover;
@@ -27,6 +29,12 @@ public class Coord {
         return terrain + " " + science + " " + xpos + " " + ypos;
     }
 
+    public Coord()
+    {
+    	this.xpos = 0;
+		this.ypos = 0;
+    }
+    
 	public Coord(int x, int y){
 		this.xpos = x;
 		this.ypos = y;
@@ -37,6 +45,14 @@ public class Coord {
         this.science = science;
         this.terrain = terrain;
     }
+	
+	public int getXpos() {
+		return xpos;
+	}
+
+	public int getYpos() {
+		return ypos;
+	}
 	
     @Override
     public int hashCode() {

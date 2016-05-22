@@ -60,6 +60,8 @@ public class ScanMap {
 		System.out.print("\n");
 	}
 	
+	
+	
 	public int getEdgeSize(){
 		return edgeSize;
 	}
