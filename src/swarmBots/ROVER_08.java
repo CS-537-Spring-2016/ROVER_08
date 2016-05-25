@@ -180,45 +180,15 @@ public class ROVER_08 {
 			 *  ####  Rover controller process loop  ####
 			 */
 			while (true) {
-				out.println("LOC");
-				line = in.readLine();
-	            if (line == null) {
-	            	System.out.println(rovername + " check connection to server");
-	            	line = "";
-	            }
-				if (line.startsWith("LOC")) {
-					currentLoc = extractLocationFromString(line);
-					
-				}
-				System.out.println(rovername + " currentLoc at start: " + currentLoc);
 				
+				currentLoc = getCurrentLoaction();
+					
 				// after getting location set previous equal current to be able to check for stuckness and blocked later
 				previousLoc = currentLoc;		
-			
-				// ***** do a SCAN *****
-
-				// gets the scanMap from the server based on the Rover current location
-				doScan(); 
-				// prints the scanMap to the Console output for debug purposes
-				scanMap.debugPrintMap();
-						
-				
-			/*	// ***** get TIMER remaining *****
-				out.println("TIMER");
-				line = in.readLine();
-	            if (line == null) {
-	            	System.out.println(rovername + " check connection to server");
-	            	line = "";
-	            }
-				if (line.startsWith("TIMER")) {
-					String timeRemaining = line.substring(6);
-					System.out.println(rovername + " timeRemaining: " + timeRemaining);
-				}
-				*/
-				MapTile[][] scanMapTiles = scanMap.getScanMap();
-				int centerIndex = (scanMap.getEdgeSize() - 1)/2;
+							
 				// tile S = y + 1; N = y - 1; E = x + 1; W = x - 1
-	
+				MapTile[][] scanMapTiles =getScanMapTiles();
+				int centerIndex = (scanMap.getEdgeSize() - 1)/2;
 				
 				// ***** MOVING *****
 				// try moving east 5 block if blocked
@@ -230,31 +200,22 @@ public class ROVER_08 {
 				else if (blocked) {
 					
 					for (int i = 0; i < 5; i++) {
-						moveWhenBlocked(scanMapTiles, centerIndex);
+						moveWhenBlocked(getScanMapTiles(), centerIndex);
 						Thread.sleep(sleepTime);
 					}
 					}else {
-					List<Coord> crystalList=getCrystalLocation(scanMapTiles,currentLoc );
+					List<Coord> crystalList=getCrystalLocation(getScanMapTiles(),currentLoc,new ArrayList<Coord>() );
 					if(crystalList.size()>0)
 					{
-						gatherCrystal(crystalList,currentLoc,scanMapTiles);
+						gatherCrystal(crystalList,currentLoc);
 					}
 					getTargetDirection(currentLoc,targetLocation);
 					
-					moveRover(scanMapTiles,centerIndex);
+					moveRover(getScanMapTiles(),centerIndex);
 					}
 	
 				// another call for current location
-				out.println("LOC");
-				line = in.readLine();
-				if(line == null){
-					System.out.println("ROVER_08 check connection to server");
-					line = "";
-				}
-				if (line.startsWith("LOC")) {
-					currentLoc = extractLocationFromString(line);
-					
-				}
+			getCurrentLoaction();
 	
 	
 				// test for stuckness
@@ -292,8 +253,36 @@ public class ROVER_08 {
 
 	} // END of Rover main control loop
 	
+	private MapTile[][] getScanMapTiles() throws Exception {
+		// ***** do a SCAN *****
+		// gets the scanMap from the server based on the Rover current location
+		doScan(); 
+		// prints the scanMap to the Console output for debug purposes
+		scanMap.debugPrintMap();
+		 return scanMap.getScanMap();
+		
+	}
+
 	// ####################### Support Methods #############################
 	
+	private Coord getCurrentLoaction() throws Exception {
+		String line;
+		Coord currentLoc=null;
+		out.println("LOC");
+		line = in.readLine();
+		if(line == null){
+			System.out.println("ROVER_08 check connection to server");
+			line = "";
+		}
+		if (line.startsWith("LOC")) {
+			currentLoc = extractLocationFromString(line);
+			
+		}
+		System.out.println(rovername + " currentLoc at start: " + currentLoc);
+		return currentLoc;
+		
+	}
+
 	private void clearReadLineBuffer() throws IOException{
 		while(in.ready()){
 			//System.out.println("ROVER_08 clearing readLine()");
@@ -525,7 +514,7 @@ public class ROVER_08 {
 
 	}
 	
-	public void moveRover(MapTile[][] scanMapTiles,int centerIndex) throws InterruptedException
+	public void moveRover(MapTile[][] scanMapTiles,int centerIndex) throws Exception
 	{
 		if (!scanMapTiles[centerIndex][centerIndex].getScience().getSciString().equals("N")) {
 			System.out.println("ROVER_08 request GATHER");
@@ -569,6 +558,14 @@ public class ROVER_08 {
 				out.println("MOVE N");
 			}					
 		} 
+		scanMapTiles=getScanMapTiles();
+		if (!scanMapTiles[centerIndex][centerIndex].getScience().getSciString().equals("N")) {
+			System.out.println("ROVER_08 request GATHER");
+			out.println("GATHER");
+			Thread.sleep(sleepTime);
+			
+		}
+		
 		if(blocked)
 		{
 			moveWhenBlocked(scanMapTiles, centerIndex);
@@ -629,23 +626,23 @@ public class ROVER_08 {
 		return Boolean.FALSE;
 	}
 	
-	public List<Coord> getCrystalLocation(MapTile[][] scanMapTiles ,Coord currentLoc)
+	public List<Coord> getCrystalLocation(MapTile[][] scanMapTiles ,Coord currentLoc, List<Coord> list)
 	{
-		List<Coord> list= new ArrayList<Coord>();
-		int i,j,xPos = 0,yPos=0;
+		int i,j,s,xPos = 0,yPos=0;
+		Boolean isPresent=Boolean.FALSE;
+		if(list==null)
+		 list= new ArrayList<Coord>();
+		
 		
 		
 		for(i=0;i<7;i++)
 		{
 			for(j=0;j<7;j++)
 			{
+				isPresent=Boolean.FALSE;
 				
-				if((scanMapTiles[i][j].getTerrain() == Terrain.SOIL ||
-					scanMapTiles[i][j].getTerrain() == Terrain.SAND || scanMapTiles[i][j].getTerrain() == Terrain.GRAVEL) &&
-					(scanMapTiles[i][j].getScience().getSciString().equals("C") ||
-					scanMapTiles[i][j].getScience().getSciString().equals("O") ||
-					scanMapTiles[i][j].getScience().getSciString().equals("Y") ))
-				{
+				if((scanMapTiles[i][j].getTerrain() == Terrain.SOIL || scanMapTiles[i][j].getTerrain() == Terrain.SAND )){
+					if(!scanMapTiles[i][j].getScience().getSciString().equals("N"))	{
 					if(i<3)
 					{
 						xPos=(currentLoc.xpos-(4-i)+1);
@@ -670,13 +667,21 @@ public class ROVER_08 {
 					else{
 						yPos=currentLoc.ypos;
 					}
-					if(scanMapTiles[i][j].getScience().getSciString().equals("C"))
+					
+					for( s=0;s<list.size() && isPresent==Boolean.FALSE;s++)
 					{
-						list.add(new Coord(xPos,yPos) );	
+						if(list.get(s).getXpos()==xPos && list.get(s).getYpos()==yPos)
+						{
+							isPresent=Boolean.TRUE;
+						}
 					}
 					
-				}
+					if(!isPresent)
+						list.add(new Coord(xPos,yPos) );	
 					
+					
+				}
+			}	
 					
 			}
 		}
@@ -684,30 +689,25 @@ public class ROVER_08 {
 		
 	}
 	
-	void gatherCrystal(List<Coord> crystalList,Coord currentLocation,MapTile[][] scanMapTiles) throws Exception
+	void gatherCrystal(List<Coord> crystalList,Coord currentLocation) throws Exception
 	{
 		Boolean flag=Boolean.TRUE;
 		int centerIndex = (scanMap.getEdgeSize() - 1)/2;
-		String line;
-		for (Coord crystalLocation : crystalList) {
+		for(int i=0;i<crystalList.size();i++)
+		{
 			flag=Boolean.TRUE;
-		while(flag==true){
-			getTargetDirection(currentLocation, crystalLocation);
-			moveRover(scanMapTiles,centerIndex );
-			
-			out.println("LOC");
-			line = in.readLine();
-           
-			if(line!=null){
-				if (line.startsWith("LOC"))
-				{
-					currentLocation = extractLocationFromString(line);
-					if(currentLocation.xpos==crystalLocation.xpos && currentLocation.ypos==crystalLocation.ypos)
-					{
-						flag=Boolean.FALSE;
-					}
-				}
+			while(flag==true){
+			getTargetDirection(currentLocation, crystalList.get(i));
+			moveRover(getScanMapTiles(),centerIndex );
+		   
+			currentLocation = getCurrentLoaction();
+				
+			if(currentLocation.xpos==crystalList.get(i).xpos && currentLocation.ypos==crystalList.get(i).ypos)
+			{
+				flag=Boolean.FALSE;
 			}
+			
+			getCrystalLocation(getScanMapTiles(),currentLocation,crystalList);
 			
 			  /* ********* Detect and Share Science ***************/
             rocom.detectAndShare(scanMap.getScanMap(), currentLocation, 3);
@@ -720,7 +720,7 @@ public class ROVER_08 {
 		
 	}
 
-	public void moveWhenBlocked(MapTile[][] scanMapTiles,int centerIndex) throws InterruptedException
+	public void moveWhenBlocked(MapTile[][] scanMapTiles,int centerIndex) throws Exception
 	{
 		String dir;
 		dir=directionChecker();
