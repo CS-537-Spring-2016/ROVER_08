@@ -5,7 +5,6 @@ import java.net.ServerSocket;
 import java.util.List;
 
 import common.Coord;
-import enums.Science;
 import enums.Terrain;
 
 /** Read incoming messages from other ROVERS. Parse the data according to the
@@ -26,13 +25,10 @@ public interface Receiver {
      *            Ignored all incoming result from other ROVERS that is on these
      *            Terrains. For example, Walkers would want to ignore SAND */
     void ignoreTerrains(Terrain... terrains);
-
+    
     /** Start ROVER server, accept incoming message from other ROVERS
      * 
      * @param serverSocket
      * @throws IOException */
     void startServer(ServerSocket serverSocket) throws IOException;
-    
-    int getRoversConnectedToMe();
-
 }

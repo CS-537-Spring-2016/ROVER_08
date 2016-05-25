@@ -13,7 +13,6 @@ import java.util.Random;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 
 import common.Coord;
 import common.MapTile;
@@ -92,14 +91,11 @@ public class ROVER_08 {
                     RoverToolType.HARVESTER, RoverToolType.SPECTRAL_SENSOR);
 
             /* Setup communication, only communicates with gatherers */
-            rocom = new RoverCommunication(group,
-                    Group.getGatherers(Group.blueCorp(SERVER_ADDRESS)));
+            rocom = new RoverCommunication(group);
+            rocom.setGroupList(Group.getGatherers());
 
             /* Can't go on ROCK, thus ignore any SCIENCE COORDS that is on ROCK */
-            rocom.getReceiver().ignoreTerrains(Terrain.ROCK);
-
-            /* Connect to the other ROVERS */
-            rocom.run();
+            rocom.ignoreTerrain(Terrain.ROCK);
 
             /* Start your server, receive incoming message from other ROVERS */
             rocom.startServer();
