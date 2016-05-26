@@ -13,6 +13,7 @@ import java.util.Random;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 
 import common.Coord;
 import common.MapTile;
@@ -36,7 +37,7 @@ public class ROVER_08 {
 	PrintWriter out;
 	String rovername;
 	ScanMap scanMap;
-	int sleepTime=200;
+	int sleepTime=150;
 	String SERVER_ADDRESS = "localhost";//"192.168.1.106";
 	static final int PORT_ADDRESS = 9537;
 	
@@ -170,8 +171,8 @@ public class ROVER_08 {
 			String currentDir = cardinals[0];
 			Coord currentLoc = null;
 			Coord previousLoc = null;
-	
-
+			List<Coord> crystalList;
+			String dir;
 			/**
 			 *  ####  Rover controller process loop  ####
 			 */
@@ -190,28 +191,85 @@ public class ROVER_08 {
 				// try moving east 5 block if blocked
 				if(blockedByRover)
 				{
-					moveWhenBlocked(scanMapTiles, centerIndex);
+					dir=generateRandomDirection();
+					setDirection(dir);
+					moveRover(scanMapTiles, centerIndex);
+					
+					blocked = Boolean.FALSE;
+					blockedByRover = Boolean.FALSE;
+					Thread.sleep(sleepTime);
+					
+					/*moveWhenBlocked(scanMapTiles, centerIndex);
+					blocked=Boolean.FALSE;
+					blockedByRover=Boolean.FALSE;
+					Thread.sleep(sleepTime);*/
 					
 				}
 				else if (blocked) {
 					
-					for (int i = 0; i < 5; i++) {
-						moveWhenBlocked(getScanMapTiles(), centerIndex);
+						moveWhenBlocked(scanMapTiles, centerIndex);
 						Thread.sleep(sleepTime);
-					}
+						
+					for (int i = 0; i < 6 ; i++) {
+						
+						scanMapTiles=getScanMapTiles();
+						dir=generateRandomDirection();
+						setDirection(dir);
+						moveRover(scanMapTiles, centerIndex);
+						blocked = Boolean.FALSE;
+						blockedByRover = Boolean.FALSE;
+						Thread.sleep(sleepTime);
+						currentLoc=getCurrentLoaction();
+						scanMapTiles =getScanMapTiles();
+						
+						}
 					}else {
-					List<Coord> crystalList=getCrystalLocation(getScanMapTiles(),currentLoc,new ArrayList<Coord>() );
+						
+				 crystalList=getCrystalLocation(scanMapTiles,currentLoc,new ArrayList<Coord>() );
 					if(crystalList.size()>0)
 					{
-						gatherCrystal(crystalList,currentLoc);
+						gatherCrystal( crystalList, currentLoc, scanMapTiles);
+						/*Boolean flag=Boolean.TRUE;
+						for(int i=0;i<crystalList.size();i++)
+						{
+							flag=Boolean.TRUE;
+							while(flag==true && blocked==false &&  blockedByRover==false){
+								
+							getTargetDirection(currentLoc, crystalList.get(i));
+							moveRover(scanMapTiles,centerIndex );
+						   	
+							if(currentLoc.xpos==crystalList.get(i).xpos && currentLoc.ypos==crystalList.get(i).ypos)
+							{
+								flag=Boolean.FALSE;
+							}
+							currentLoc = getCurrentLoaction();
+							scanMapTiles=getScanMapTiles();
+							getCrystalLocation(scanMapTiles,currentLoc,crystalList);
+							
+							   ********* Detect and Share Science **************
+				            rocom.detectAndShare(scanMapTiles, currentLoc, 3);
+				             ************************************************
+							
+							
+							Thread.sleep(sleepTime);
+							}
+						}*/
 					}
-					getTargetDirection(currentLoc,targetLocation);
 					
-					moveRover(getScanMapTiles(),centerIndex);
+					if(blocked==Boolean.FALSE && blockedByRover==Boolean.FALSE){
+						getTargetDirection(currentLoc, targetLocation);
+					}
+					scanMapTiles=getScanMapTiles();
+					
+					if(currentLoc.xpos==targetLocation.xpos && currentLoc.ypos==targetLocation.ypos)
+					{
+						gatherInJackpot(scanMapTiles,centerIndex);
+						scanMapTiles=getScanMapTiles();
+					}
+					moveRover(scanMapTiles,centerIndex);
 					}
 	
-				// another call for current location
-			getCurrentLoaction();
+			
 	
 	
 				// test for stuckness
@@ -224,7 +282,7 @@ public class ROVER_08 {
 				
 				
                 /* ********* Detect and Share Science ***************/
-                rocom.detectAndShare(scanMap.getScanMap(), currentLoc, 3);
+                rocom.detectAndShare(scanMapTiles, currentLoc, 3);
                 /* *************************************************/
 				
 				// this is the Rovers HeartBeat, it regulates how fast the Rover cycles through the control loop
@@ -249,6 +307,124 @@ public class ROVER_08 {
 
 	} // END of Rover main control loop
 	
+	public void gatherInJackpot(MapTile[][] scanMapTiles, int centerIndex) throws Exception {
+		
+		int i,j,xPos,yPos;
+		Boolean flag;
+		String dir;
+//		targetLocation=targetLocation;
+		Coord currentLocation = getCurrentLoaction();
+		List<Coord> list= new ArrayList<Coord>();
+		for(i=0;i<7;i++){
+			for(j=0;j<7;j++)
+			{
+				if((scanMapTiles[i][i].getTerrain() == Terrain.SOIL || scanMapTiles[i][j].getTerrain() == Terrain.SAND || scanMapTiles[i][j].getTerrain() == Terrain.GRAVEL ))
+				{
+					if(i<3)
+					{
+						xPos=(currentLocation.xpos-(4-i)+1);
+					}
+					else if(i>3)
+					{
+						xPos=(currentLocation.xpos+(i%4)+1);
+					}
+					else
+					{
+						xPos=currentLocation.xpos;
+					}
+					if(j<3)
+					{
+						yPos=currentLocation.ypos-(4-j)+1;
+
+					}else if(j>3)
+					{
+						yPos=currentLocation.ypos+(j%4)+1;
+						
+					}
+					else{
+						yPos=currentLocation.ypos;
+					}
+					
+					
+						list.add(new Coord(xPos,yPos) );	
+					
+				}
+			
+			}
+		}
+		
+		for (Coord c : list) {
+			
+			flag=Boolean.TRUE;
+			while(flag){
+			
+				
+				scanMapTiles=getScanMapTiles();
+				getTargetDirection(currentLocation, c);
+				moveRover(scanMapTiles,centerIndex );
+				currentLocation = getCurrentLoaction();
+				if(currentLocation.xpos==c.xpos && currentLocation.ypos==c.ypos)
+				{
+					flag=Boolean.FALSE;
+				}
+				Thread.sleep(sleepTime);
+				
+				if(blocked || blockedByRover )
+				{
+				/*	scanMapTiles=getScanMapTiles();
+					moveWhenBlocked(scanMapTiles, centerIndex);
+					break;*/
+					
+						for ( i = 0; i < 4 ; i++) {
+							currentLocation=getCurrentLoaction();
+						scanMapTiles=getScanMapTiles();
+						dir=generateRandomDirection();
+						setDirection(dir);
+						moveRover(scanMapTiles, centerIndex);
+						blocked = Boolean.FALSE;
+						blockedByRover = Boolean.FALSE;
+						Thread.sleep(sleepTime);
+						
+						
+						
+						}
+				}
+			
+			}
+		}
+	}
+
+	// tile S = y + 1; N = y - 1; E = x + 1; W = x - 1
+	private void moveWhenBlocked(MapTile[][]scanMapTiles, int x) throws Exception {
+		Boolean north,east,south,west;
+		north=Boolean.FALSE;
+		east=Boolean.FALSE;
+		south=Boolean.FALSE;
+		west=Boolean.FALSE;
+		
+		if(checkNorthDirection(scanMapTiles, x, x))
+			north=Boolean.TRUE;
+		if(checkEastDirection(scanMapTiles, x, x))
+			east=Boolean.TRUE;
+		if(checkSouthDirection(scanMapTiles, x, x))
+			south=Boolean.TRUE;
+		if(checkWestDirection(scanMapTiles, x, x))
+			west=Boolean.TRUE;
+		
+		if(north)
+			setDirection("N");
+		else if(east)
+			setDirection("E");
+			else if(south)
+				setDirection("S");
+				else if(west)
+					setDirection("W");
+		
+		moveRover(scanMapTiles, x);
+			
+		
+	}
+
 	private MapTile[][] getScanMapTiles() throws Exception {
 		// ***** do a SCAN *****
 		// gets the scanMap from the server based on the Rover current location
@@ -272,9 +448,9 @@ public class ROVER_08 {
 		}
 		if (line.startsWith("LOC")) {
 			currentLoc = extractLocationFromString(line);
-			
+			System.out.println(rovername + " currentLoc at start: " + currentLoc);
 		}
-		System.out.println(rovername + " currentLoc at start: " + currentLoc);
+		
 		return currentLoc;
 		
 	}
@@ -388,19 +564,22 @@ public class ROVER_08 {
 	
 	public Boolean validateMapTile(MapTile map) {
 		
-		if ( map.getHasRover() == Boolean.TRUE)
+		if ( map.getHasRover() == Boolean.TRUE){
 			blockedByRover=Boolean.TRUE;
-		
-		if (map.getTerrain() != Terrain.ROCK
-				&& map.getTerrain() != Terrain.NONE
-				&& map.getHasRover() == Boolean.FALSE)
-			return Boolean.TRUE;
+			blocked=Boolean.FALSE;
+			return Boolean.FALSE;
+		}
+		if (map.getTerrain() == Terrain.ROCK || map.getTerrain() == Terrain.NONE){
+			blocked=Boolean.TRUE;
+			blockedByRover=Boolean.FALSE;
+			return Boolean.FALSE;
+		}
 
-		return Boolean.FALSE;
+		return Boolean.TRUE;
 
 	}
 	
-	public String directionChecker() {
+	public String generateRandomDirection() {
 
 		Random ran = new Random();
 	
@@ -440,7 +619,7 @@ public class ROVER_08 {
 		}else if(dir.equals("E")){
 			goingSouth=Boolean.FALSE;goingEast=Boolean.TRUE;goingWest=Boolean.FALSE;goingNorth=Boolean.FALSE;
 		}else
-			directionChecker();
+			generateRandomDirection();
 		
 	}
 	
@@ -512,12 +691,15 @@ public class ROVER_08 {
 	
 	public void moveRover(MapTile[][] scanMapTiles,int centerIndex) throws Exception
 	{
-		if (!scanMapTiles[centerIndex][centerIndex].getScience().getSciString().equals("N")) {
+	/*	if (!scanMapTiles[centerIndex][centerIndex].getScience().getSciString().equals("N")) {
 			System.out.println("ROVER_08 request GATHER");
 			out.println("GATHER");
 			Thread.sleep(sleepTime);
 			
-		}
+		}*/
+		
+		out.println("GATHER"); 
+		
 		// tile S = y + 1; N = y - 1; E = x + 1; W = x - 1
 		if (goingSouth) {
 			
@@ -554,18 +736,31 @@ public class ROVER_08 {
 				out.println("MOVE N");
 			}					
 		} 
-		scanMapTiles=getScanMapTiles();
-		if (!scanMapTiles[centerIndex][centerIndex].getScience().getSciString().equals("N")) {
-			System.out.println("ROVER_08 request GATHER");
-			out.println("GATHER");
-			Thread.sleep(sleepTime);
+		
+		/*if(blockedByRover)
+		{
+			blocked=Boolean.FALSE;
+			blockedByRover=Boolean.FALSE;
+			 getCurrentLoaction();
+			scanMapTiles =getScanMapTiles();
+			moveWhenBlocked(scanMapTiles, centerIndex);
+			
+		
 			
 		}
-		
-		if(blocked)
-		{
-			moveWhenBlocked(scanMapTiles, centerIndex);
-		}
+		else if (blocked) {
+			blocked=Boolean.FALSE;
+			blockedByRover=Boolean.FALSE;
+			for (int i = 0; i < 5; i++) {
+				
+				 getCurrentLoaction();
+				scanMapTiles =getScanMapTiles();
+				moveWhenBlocked(scanMapTiles, centerIndex);
+				Thread.sleep(sleepTime);
+				
+			}
+			
+		}*/
 		
 		Thread.sleep(sleepTime);
 		
@@ -685,48 +880,73 @@ public class ROVER_08 {
 		
 	}
 	
-	void gatherCrystal(List<Coord> crystalList,Coord currentLocation) throws Exception
+	void gatherCrystal(List<Coord> crystalList,Coord currentLocation,MapTile[][] scanMapTiles) throws Exception
 	{
+		int i , centerIndex = (scanMap.getEdgeSize() - 1)/2;
 		Boolean flag=Boolean.TRUE;
-		int centerIndex = (scanMap.getEdgeSize() - 1)/2;
-		for(int i=0;i<crystalList.size();i++)
+		for( i=0;i<crystalList.size();i++)
 		{
 			flag=Boolean.TRUE;
-			while(flag==true){
-			getTargetDirection(currentLocation, crystalList.get(i));
-			moveRover(getScanMapTiles(),centerIndex );
-		   
-			currentLocation = getCurrentLoaction();
+			while(flag==true && blocked==false &&  blockedByRover==false){
+			
+				getTargetDirection(currentLocation, crystalList.get(i));
+				moveRover(scanMapTiles,centerIndex );
+				if(currentLocation.xpos==crystalList.get(i).xpos && currentLocation.ypos==crystalList.get(i).ypos)
+				{
+					flag=Boolean.FALSE;
+				}
+				currentLocation = getCurrentLoaction();
+				scanMapTiles=getScanMapTiles();
+				getCrystalLocation(scanMapTiles,currentLocation,crystalList);
 				
-			if(currentLocation.xpos==crystalList.get(i).xpos && currentLocation.ypos==crystalList.get(i).ypos)
+				rocom.detectAndShare(scanMapTiles, currentLocation, 3);
+	            
+				Thread.sleep(sleepTime);
+			
+			}
+		}
+	/*		for( i=0;i<crystalList.size();i++)
+		{
+			flag=Boolean.TRUE;
+			while(flag==true && blocked==false &&  blockedByRover==false){
+				
+			getTargetDirection(currentLoc, crystalList.get(i));
+			moveRover(scanMapTiles,centerIndex );
+		   	
+			if(currentLoc.xpos==crystalList.get(i).xpos && currentLoc.ypos==crystalList.get(i).ypos)
 			{
 				flag=Boolean.FALSE;
 			}
+			currentLoc = getCurrentLoaction();
+			scanMapTiles=getScanMapTiles();
+			getCrystalLocation(scanMapTiles,currentLoc,crystalList);
 			
-			getCrystalLocation(getScanMapTiles(),currentLocation,crystalList);
-			
-			  /* ********* Detect and Share Science ***************/
-            rocom.detectAndShare(scanMap.getScanMap(), currentLocation, 3);
-            /* *************************************************/
+			   ********* Detect and Share Science **************
+            rocom.detectAndShare(scanMapTiles, currentLoc, 3);
+             ************************************************
 			
 			
 			Thread.sleep(sleepTime);
 			}
-		}
-		
+		}	*/	
 	}
 
-	public void moveWhenBlocked(MapTile[][] scanMapTiles,int centerIndex) throws Exception
+	/*public void moveWhenBlocked(MapTile[][] scanMapTiles,int centerIndex) throws Exception
 	{
 		String dir;
-		dir=directionChecker();
+		dir=generateRandomDirection();
 		setDirection(dir);
 		moveRover(scanMapTiles, centerIndex);
 		
 		blocked = Boolean.FALSE;
 		blockedByRover = Boolean.FALSE;
-		Thread.sleep(sleepTime*2);
-	}
+		Thread.sleep(sleepTime);
+	}*/
+
+	
+	
+	
+	
 	
 	/**
 	 * Runs the client
