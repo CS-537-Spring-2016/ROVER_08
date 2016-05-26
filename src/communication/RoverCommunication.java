@@ -57,6 +57,38 @@ public class RoverCommunication implements Detector {
     public List<Coord> getShareScience() {
         return receiver.getSharedCoords();
     }
+    
+    /** @return A list of science that THIS ROVER discovered */
+    public List<Coord> getMyDiscoveredSciences() {
+        return discoveredSciences;
+    }
+
+    /** @return A list of ALL "gather able" discovered sciences, science that
+     *         are not on ignored terrains (terrain THIS rover cannot
+     *         traverse) */
+    public List<Coord> getAllGatherableDiscoveredSciences() {
+
+        /* List of discovered science THIS rover can gather */
+        List<Coord> all = new ArrayList<Coord>();
+
+        /* The science THIS rover discovered may not be gathered by THIS rover
+         * Any science that is on the ignoredTerrains list will be omitted */
+        for (Coord coord : discoveredSciences) {
+            if (!receiver.getIgnoredTerrains().contains(coord.terrain)) {
+                all.add(coord);
+            }
+        }
+
+        /* Add science that other ROVERS discovered that this ROVER hasn't. By
+         * default, share science are filtered by ignored terrains. */
+        for (Coord coord : getShareScience()) {
+            if (!all.contains(coord)) {
+                all.add(coord);
+            }
+        }
+
+        return all;
+    }
 
     /** Scan the map for science. Update rover science list. Share the science
      * to all the ROVERS. Display result on console. Also display the list of
