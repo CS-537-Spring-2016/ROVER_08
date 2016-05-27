@@ -574,23 +574,18 @@ public class ROVER_08 {
 		int i =  ran.nextInt(1000)%4;
 		if(i==0)
 		{
-			return "S";
-			//goingSouth=Boolean.TRUE;goingEast=Boolean.FALSE;goingWest=Boolean.FALSE;goingNorth=Boolean.FALSE;
-			
+			return "S";			
 		}
 		else if(i ==1)
 		{
 			return "N";
-//			goingSouth=Boolean.FALSE;goingEast=Boolean.FALSE;goingWest=Boolean.FALSE;goingNorth=Boolean.TRUE;
 		}
 		else if(i==2)
 		{
 			return "W";
-//			goingSouth=Boolean.FALSE;goingEast=Boolean.FALSE;goingWest=Boolean.TRUE;goingNorth=Boolean.FALSE;
 		}else
 		{
 			return "E";
-//			goingSouth=Boolean.FALSE;goingEast=Boolean.TRUE;goingWest=Boolean.FALSE;goingNorth=Boolean.FALSE;
 		}
 
 	}
@@ -724,32 +719,6 @@ public class ROVER_08 {
 				out.println("MOVE N");
 			}					
 		} 
-		
-		/*if(blockedByRover)
-		{
-			blocked=Boolean.FALSE;
-			blockedByRover=Boolean.FALSE;
-			 getCurrentLoaction();
-			scanMapTiles =getScanMapTiles();
-			moveWhenBlocked(scanMapTiles, centerIndex);
-			
-		
-			
-		}
-		else if (blocked) {
-			blocked=Boolean.FALSE;
-			blockedByRover=Boolean.FALSE;
-			for (int i = 0; i < 5; i++) {
-				
-				 getCurrentLoaction();
-				scanMapTiles =getScanMapTiles();
-				moveWhenBlocked(scanMapTiles, centerIndex);
-				Thread.sleep(sleepTime);
-				
-			}
-			
-		}*/
-		
 		Thread.sleep(sleepTime);
 		
 	} 
@@ -954,49 +923,8 @@ public class ROVER_08 {
 			
 			}
 		}
-	/*		for( i=0;i<crystalList.size();i++)
-		{
-			flag=Boolean.TRUE;
-			while(flag==true && blocked==false &&  blockedByRover==false){
-				
-			getTargetDirection(currentLoc, crystalList.get(i));
-			moveRover(scanMapTiles,centerIndex );
-		   	
-			if(currentLoc.xpos==crystalList.get(i).xpos && currentLoc.ypos==crystalList.get(i).ypos)
-			{
-				flag=Boolean.FALSE;
-			}
-			currentLoc = getCurrentLoaction();
-			scanMapTiles=getScanMapTiles();
-			getCrystalLocation(scanMapTiles,currentLoc,crystalList);
-			
-			   ********* Detect and Share Science **************
-            rocom.detectAndShare(scanMapTiles, currentLoc, 3);
-             ************************************************
-			
-			
-			Thread.sleep(sleepTime);
-			}
-		}	*/	
 	}
 
-	/*public void moveWhenBlocked(MapTile[][] scanMapTiles,int centerIndex) throws Exception
-	{
-		String dir;
-		dir=generateRandomDirection();
-		setDirection(dir);
-		moveRover(scanMapTiles, centerIndex);
-		
-		blocked = Boolean.FALSE;
-		blockedByRover = Boolean.FALSE;
-		Thread.sleep(sleepTime);
-	}*/
-
-	
-	
-	
-	
-	
 	/**
 	 * Runs the client
 	 */
