@@ -13,7 +13,7 @@ import java.util.Random;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.sun.org.apache.xpath.internal.operations.Bool;
+//import com.sun.org.apache.xpath.internal.operations.Bool;
 
 import common.Coord;
 import common.MapTile;
@@ -42,7 +42,7 @@ public class ROVER_08 {
 	static final int PORT_ADDRESS = 9537;
 	
 	
-	boolean goingSouth = false;
+	boolean goingSouth = false,traverseJackpot=Boolean.FALSE;
 	boolean goingEast = false;
 	boolean goingWest = false;
 	boolean goingNorth = false;
@@ -229,44 +229,32 @@ public class ROVER_08 {
 					if(crystalList.size()>0)
 					{
 						gatherCrystal( crystalList, currentLoc, scanMapTiles);
-						/*Boolean flag=Boolean.TRUE;
-						for(int i=0;i<crystalList.size();i++)
-						{
-							flag=Boolean.TRUE;
-							while(flag==true && blocked==false &&  blockedByRover==false){
-								
-							getTargetDirection(currentLoc, crystalList.get(i));
-							moveRover(scanMapTiles,centerIndex );
-						   	
-							if(currentLoc.xpos==crystalList.get(i).xpos && currentLoc.ypos==crystalList.get(i).ypos)
-							{
-								flag=Boolean.FALSE;
-							}
-							currentLoc = getCurrentLoaction();
-							scanMapTiles=getScanMapTiles();
-							getCrystalLocation(scanMapTiles,currentLoc,crystalList);
-							
-							   ********* Detect and Share Science **************
-				            rocom.detectAndShare(scanMapTiles, currentLoc, 3);
-				             ************************************************
-							
-							
-							Thread.sleep(sleepTime);
-							}
-						}*/
+				
 					}
 					
 					if(blocked==Boolean.FALSE && blockedByRover==Boolean.FALSE){
 						getTargetDirection(currentLoc, targetLocation);
+						moveRover(scanMapTiles,centerIndex);
 					}
+					currentLoc=getCurrentLoaction();
 					scanMapTiles=getScanMapTiles();
 					
 					if(currentLoc.xpos==targetLocation.xpos && currentLoc.ypos==targetLocation.ypos)
 					{
-						gatherInJackpot(scanMapTiles,centerIndex);
-						scanMapTiles=getScanMapTiles();
+						if(!traverseJackpot)
+						{
+							gatherInJackpot(scanMapTiles,centerIndex);
+							traverseJackpot=Boolean.TRUE;
+						}
+						crystalList=null;
+						crystalList=rocom.getAllGatherableDiscoveredSciences();
+						if(crystalList!=null && crystalList.size()>0)
+						{
+							gatherSharedCrystal( crystalList, currentLoc, scanMapTiles);
+						}
+						
 					}
-					moveRover(scanMapTiles,centerIndex);
+					
 					}
 	
 			
@@ -877,6 +865,67 @@ public class ROVER_08 {
 			}
 		}
 		return list;
+		
+	}
+	
+	
+	void gatherSharedCrystal(List<Coord> crystalList,Coord currentLocation,MapTile[][] scanMapTiles) throws Exception
+	{
+		int i , centerIndex = (scanMap.getEdgeSize() - 1)/2;
+		Boolean flag=Boolean.TRUE;
+		String dir;
+		for( i=0;i<crystalList.size();i++)
+		{
+			flag=Boolean.TRUE;
+			while(flag){
+			
+				getTargetDirection(currentLocation, crystalList.get(i));
+				moveRover(scanMapTiles,centerIndex );
+				if(currentLocation.xpos==crystalList.get(i).xpos && currentLocation.ypos==crystalList.get(i).ypos)
+				{
+					flag=Boolean.FALSE;
+				}
+				currentLocation = getCurrentLoaction();
+				scanMapTiles=getScanMapTiles();
+				rocom.detectAndShare(scanMapTiles, currentLocation, 3);
+	            
+				Thread.sleep(sleepTime);
+			
+				if(blockedByRover)
+				{
+					dir=generateRandomDirection();
+					setDirection(dir);
+					moveRover(scanMapTiles, centerIndex);
+					currentLocation = getCurrentLoaction();
+					
+					blocked = Boolean.FALSE;
+					blockedByRover = Boolean.FALSE;
+					Thread.sleep(sleepTime);
+					
+				}
+				else if (blocked) {
+					
+						moveWhenBlocked(scanMapTiles, centerIndex);
+						blocked = Boolean.FALSE;
+						blockedByRover = Boolean.FALSE;
+						Thread.sleep(sleepTime);
+						
+					for (int j = 0; j < 6 ; j++) {
+						
+						scanMapTiles=getScanMapTiles();
+						dir=generateRandomDirection();
+						setDirection(dir);
+						moveRover(scanMapTiles, centerIndex);
+						
+						Thread.sleep(sleepTime);
+						
+						}
+					currentLocation=getCurrentLoaction();
+					scanMapTiles =getScanMapTiles();
+					}
+				
+			}
+		}
 		
 	}
 	
