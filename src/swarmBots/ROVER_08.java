@@ -199,11 +199,6 @@ public class ROVER_08 {
 					blockedByRover = Boolean.FALSE;
 					Thread.sleep(sleepTime);
 					
-					/*moveWhenBlocked(scanMapTiles, centerIndex);
-					blocked=Boolean.FALSE;
-					blockedByRover=Boolean.FALSE;
-					Thread.sleep(sleepTime);*/
-					
 				}
 				else if (blocked) {
 					
@@ -359,12 +354,10 @@ public class ROVER_08 {
 				
 				if(blocked || blockedByRover )
 				{
-				/*	scanMapTiles=getScanMapTiles();
-					moveWhenBlocked(scanMapTiles, centerIndex);
-					break;*/
-					
-						for ( i = 0; i < 4 ; i++) {
-							currentLocation=getCurrentLoaction();
+			
+					for ( i = 0; i < 4 ; i++) 
+					{
+						currentLocation=getCurrentLoaction();
 						scanMapTiles=getScanMapTiles();
 						dir=generateRandomDirection();
 						setDirection(dir);
@@ -372,10 +365,7 @@ public class ROVER_08 {
 						blocked = Boolean.FALSE;
 						blockedByRover = Boolean.FALSE;
 						Thread.sleep(sleepTime);
-						
-						
-						
-						}
+					}
 				}
 			
 			}
@@ -403,10 +393,10 @@ public class ROVER_08 {
 			setDirection("N");
 		else if(east)
 			setDirection("E");
-			else if(south)
-				setDirection("S");
-				else if(west)
-					setDirection("W");
+		else if(south)
+			setDirection("S");
+		else if(west)
+			setDirection("W");
 		
 		moveRover(scanMapTiles, x);
 			
@@ -629,7 +619,20 @@ public class ROVER_08 {
 				
 			}
 
-		} else if (current.xpos == target.xpos) {
+		} else if ((current.xpos > target.xpos && current.ypos > target.ypos)) {
+			if (goingHorizontal) {
+				goingSouth = Boolean.FALSE;
+				goingNorth = Boolean.TRUE;
+				goingEast = Boolean.FALSE;
+				goingWest = Boolean.FALSE;
+			} else {
+				goingSouth = Boolean.FALSE;
+				goingNorth = Boolean.FALSE;
+				goingEast = Boolean.FALSE;
+				goingWest = Boolean.TRUE;
+			
+			}	
+		}else if (current.xpos == target.xpos) {
 
 			if (current.ypos < target.ypos) {
 					goingSouth = Boolean.TRUE;
@@ -643,20 +646,19 @@ public class ROVER_08 {
 					goingEast = Boolean.FALSE;
 					goingWest = Boolean.FALSE;
 			}
-			} else if (current.ypos == target.ypos) {
-				if (current.xpos < target.xpos) {
-						goingSouth = Boolean.FALSE;
-						goingNorth = Boolean.FALSE;
-						goingEast = Boolean.TRUE;
-						goingWest = Boolean.FALSE;
-				} else {
-						goingSouth = Boolean.FALSE;
-						goingNorth = Boolean.FALSE;
-						goingEast = Boolean.FALSE;
-						goingWest = Boolean.TRUE;
+		} else if (current.ypos == target.ypos) {
+			if (current.xpos < target.xpos) {
+					goingSouth = Boolean.FALSE;
+					goingNorth = Boolean.FALSE;
+					goingEast = Boolean.TRUE;
+					goingWest = Boolean.FALSE;
+			} else {
+					goingSouth = Boolean.FALSE;
+					goingNorth = Boolean.FALSE;
+					goingEast = Boolean.FALSE;
+					goingWest = Boolean.TRUE;
 					
-				}
-
+			}
 		} else if (current.xpos > target.xpos) {
 				goingSouth = Boolean.FALSE;
 				goingNorth = Boolean.FALSE;
@@ -674,15 +676,7 @@ public class ROVER_08 {
 	
 	public void moveRover(MapTile[][] scanMapTiles,int centerIndex) throws Exception
 	{
-	/*	if (!scanMapTiles[centerIndex][centerIndex].getScience().getSciString().equals("N")) {
-			System.out.println("ROVER_08 request GATHER");
-			out.println("GATHER");
-			Thread.sleep(sleepTime);
-			
-		}*/
-		
 		out.println("GATHER"); 
-		
 		// tile S = y + 1; N = y - 1; E = x + 1; W = x - 1
 		if (goingSouth) {
 			
@@ -780,8 +774,6 @@ public class ROVER_08 {
 		Boolean isPresent=Boolean.FALSE;
 		if(list==null)
 		 list= new ArrayList<Coord>();
-		
-		
 		
 		for(i=0;i<7;i++)
 		{
